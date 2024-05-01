@@ -66,8 +66,6 @@ use stm32f3xx_hal_v2::{self as hal,
                         flash::ACR, 
                         pac::Peripherals,
                         pac::FLASH};
-
-
 #[link_section = ".fram_section"]
 static mut test: u32 = 1234;
 
@@ -76,8 +74,66 @@ fn main() -> ! {
 
    let dp  = Peripherals::take().unwrap();
    let mut rcc = dp.RCC.constrain();
+   let mut flash = dp.FLASH.constrain();
+   let clocks = rcc.cfgr.sysclk(72.mhz()).freeze(&mut flash.acr);
+
    let mut fmc = dp.FMC;
+
+   let gpiod = dp.GPIOD;
+   let gpioe = dp.GPIOE;
+   let gpiof = dp.GPIOF;
+   let gpiog = dp.GPIOG;
+   let gpioh = dp.GPIOH;
+
+   let mut pd = gpiod.split(&mut rcc.ahb);
+   let mut pe = gpioe.split(&mut rcc.ahb);
+   let mut pf = gpiof.split(&mut rcc.ahb);
+   let mut pg = gpiog.split(&mut rcc.ahb);
+   let mut ph = gpioh.split(&mut rcc.ahb);
+
+   let fmc_pins = (
+        ph.ph0.into_af12(&mut ph.moder, &mut ph.afrl), //FMC_A0
+        ph.ph1.into_af12(&mut ph.moder, &mut ph.afrl), //FMC_A1
+        pf.pf2.into_af12(&mut pf.moder, &mut pf.afrl), //FMC_A2
+        pf.pf3.into_af12(&mut pf.moder, &mut pf.afrl), //FMC_A3
+        pf.pf4.into_af12(&mut pf.moder, &mut pf.afrl), //FMC_A4
+        pf.pf5.into_af12(&mut pf.moder, &mut pf.afrl), //FMC_A5
+        pf.pf12.into_af12(&mut pf.moder, &mut pf.afrh), //FMC_A6
+        pf.pf13.into_af12(&mut pf.moder, &mut pf.afrh), //FMC_A7
+        pf.pf14.into_af12(&mut pf.moder, &mut pf.afrh), //FMC_A8
+        pf.pf15.into_af12(&mut pf.moder, &mut pf.afrh), //FMC_A9
+        pg.pg0.into_af12(&mut pg.moder, &mut pg.afrl), //FMC_A10
+        pg.pg1.into_af12(&mut pg.moder, &mut pg.afrl), //FMC_A11
+        pg.pg2.into_af12(&mut pg.moder, &mut pg.afrl), //FMC_A12
+        pg.pg3.into_af12(&mut pg.moder, &mut pg.afrl), //FMC_A13
+        pg.pg4.into_af12(&mut pg.moder, &mut pg.afrl), //FMC_A14
+   );
+   
+
+   let fmc_pins_data = (
+    pd.pd14.into_af12(&mut pd.moder, &mut pd.afrh), // FMC_DQ0
+    pd.pd15.into_af12(&mut pd.moder, &mut pd.afrh), // FMC_DQ1
+    pd.pd0.into_af12(&mut pd.moder, &mut pd.afrl),  // FMC_DQ2
+    pd.pd1.into_af12(&mut pd.moder, &mut pd.afrl),  // FMC_DQ3
+    pe.pe7.into_af12(&mut pe.moder, &mut pe.afrl),  // FMC_DQ4
+    pe.pe8.into_af12(&mut pe.moder, &mut pe.afrh),  // FMC_DQ5
+    pe.pe9.into_af12(&mut pe.moder, &mut pe.afrh),  // FMC_DQ6
+    pe.pe10.into_af12(&mut pe.moder, &mut pe.afrh), // FMC_DQ7
+);
+
+    let mut cs_pin = pg.pg10.into_af12(&mut pg.moder, &mut pg.afrh);// FMC_NE3 -> CS
+    let mut oe_pin = pd.pd4.into_af12(&mut pd.moder, &mut pd.afrl); // FMC_NOE -> OE
+    let mut we_pin = pd.pd5.into_af12(&mut pd.moder, &mut pd.afrl); // FMC_NWE -> WE
+
+    // Set initial states of CS, OE, and WE pins
+    // cs_pin.set_high().unwrap(); // Assuming active low for CS
+    // oe_pin.set_high().unwrap(); // Assuming active low for OE
+    // we_pin.set_high().unwrap(); // Assuming active low for WE
+
+
   // dp.RCC.ahbenr.modify(|_,w| w.fmcen().set_bit());
+  //enable FMC
+  fmc.bcr1.modify(|_, w|w.fmcen().set_bit());
 
   // Configure FMC for SRAM memory(in our case F-RAM)
     unsafe{
@@ -89,7 +145,7 @@ fn main() -> ! {
         w
      });
 
-        fmc.btr1.write(|w| unsafe {
+     fmc.btr1.write(|w|  {
        // Set address setup time to 1 cycle
         w.addset().bits(0x1);
         // Set data setup time to 1 cycle
