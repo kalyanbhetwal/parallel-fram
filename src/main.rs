@@ -133,7 +133,7 @@ fn main() -> ! {
 
   // dp.RCC.ahbenr.modify(|_,w| w.fmcen().set_bit());
   //enable FMC
-  fmc.bcr1.modify(|_, w|w.fmcen().set_bit());
+  //fmc.bcr1.modify(|_, w|w.fmcen().set_bit());
 
   // Configure FMC for SRAM memory(in our case F-RAM)
     unsafe{
