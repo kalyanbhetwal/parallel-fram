@@ -152,10 +152,15 @@ fn main() -> ! {
         w.datast().bits(0x1);
         w
     });
+}
+    let address = 0x6000_0002;
+    unsafe{
+        let data_ptr =  address as *mut u8;
+        ptr::write_volatile(address as *mut u8, 12u8);
 
-
+        let mut data = *data_ptr;
+        hprintln!("Read data is {}", data).unwrap();
     }
-
     loop {
         // your code goes here
     }
