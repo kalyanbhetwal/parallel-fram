@@ -80,8 +80,8 @@ use stm32f3xx_hal_v2::{self as hal,
                         pac::Peripherals,
                         pac::FLASH};
 #[link_section = ".fram_section"]
-static mut test: u32 = 1234;
-static mut abc: u32 = 4687;
+static mut test: u8 = 34;
+static mut abc: u8 = 87;
 
 #[entry]
 fn main() -> ! {
@@ -142,17 +142,25 @@ fn main() -> ! {
      dp.RCC.ahbenr.modify(|_, w| w.iopeen().set_bit());
      dp.RCC.ahbenr.modify(|_, w| w.iopfen().set_bit());
      dp.RCC.ahbenr.modify(|_, w| w.iopgen().set_bit());
-     dp.RCC.ahbenr.modify(|_, w| w.iophen().set_bit());
+     dp.RCC.ahbenr.modify(|_, w| w.iophen().set_bit());  
+     dp.RCC.ahbenr.modify(|_, w| w.sramen().set_bit());  
+     dp.RCC.ahbenr.modify(|_, w| w.flitfen().set_bit());  
+     dp.RCC.ahbenr.modify(|_, w| w.fmcen().set_bit());  
+
+
+     dp.RCC.apb2enr.modify(|_, w| w.syscfgen().set_bit());
+     dp.RCC.apb1enr.modify(|_, w| w.pwren().set_bit());
+
 
    //dp.RCC.cr.write(f);
 
    //let mut fmc = &dp.FMC;
 
-   let gpiod = dp.GPIOD;
-   let gpioe = dp.GPIOE;
-   let gpiof = dp.GPIOF;
-   let gpiog = dp.GPIOG;
-   let gpioh = dp.GPIOH;
+   let mut gpiod = dp.GPIOD;
+   let mut gpioe = dp.GPIOE;
+   let mut gpiof = dp.GPIOF;
+   let mut gpiog = dp.GPIOG;
+   let mut gpioh = dp.GPIOH;
 
 //    let mut rcc = dp.RCC.constrain();
 
@@ -171,21 +179,31 @@ fn main() -> ! {
 
 gpioh.moder.modify(|_, w| {w.moder0().alternate()});
 gpioh.afrl.modify(|_, w| {  w.afrl0().af12()});
+gpioh.ospeedr.modify(|_, w| w.ospeedr0().very_high_speed());
+
 
 gpioh.moder.modify(|_, w| {w.moder1().alternate()});
 gpioh.afrl.modify(|_, w| {  w.afrl1().af12()});
+gpioh.ospeedr.modify(|_, w| w.ospeedr1().very_high_speed());
+
 
 gpiof.moder.modify(|_, w| {w.moder2().alternate()});
 gpiof.afrl.modify(|_, w| {  w.afrl2().af12()});
+gpiof.ospeedr.modify(|_, w| w.ospeedr2().very_high_speed());
+
 
 gpiof.moder.modify(|_, w| {w.moder3().alternate()});
 gpiof.afrl.modify(|_, w| {  w.afrl3().af12()});
+gpiof.ospeedr.modify(|_, w| w.ospeedr3().very_high_speed());
 
 gpiof.moder.modify(|_, w| {w.moder4().alternate()});
 gpiof.afrl.modify(|_, w| {  w.afrl4().af12()});
+gpiof.ospeedr.modify(|_, w| w.ospeedr4().very_high_speed());
+
 
 gpiof.moder.modify(|_, w| {w.moder5().alternate()});
 gpiof.afrl.modify(|_, w| {  w.afrl5().af12()});
+gpiof.ospeedr.modify(|_, w| w.ospeedr5().very_high_speed());
 
     
     // pf.pf12.into_af12(&mut pf.moder, &mut pf.afrh); //FMC_A6
@@ -195,15 +213,22 @@ gpiof.afrl.modify(|_, w| {  w.afrl5().af12()});
 
 gpiof.moder.modify(|_, w| {w.moder12().alternate()});
 gpiof.afrh.modify(|_, w| {  w.afrh12().af12()});
+gpiof.ospeedr.modify(|_, w| w.ospeedr12().very_high_speed());
+
 
 gpiof.moder.modify(|_, w| {w.moder13().alternate()});
 gpiof.afrh.modify(|_, w| {  w.afrh13().af12()});
+gpiof.ospeedr.modify(|_, w| w.ospeedr13().very_high_speed());
+
 
 gpiof.moder.modify(|_, w| {w.moder14().alternate()});
 gpiof.afrh.modify(|_, w| {  w.afrh14().af12()});
+gpiof.ospeedr.modify(|_, w| w.ospeedr14().very_high_speed());
+
 
 gpiof.moder.modify(|_, w| {w.moder15().alternate()});
 gpiof.afrh.modify(|_, w| {  w.afrh15().af12()});
+gpiof.ospeedr.modify(|_, w| w.ospeedr15().very_high_speed());
 
   // pg.pg0.into_af12(&mut pg.moder, &mut pg.afrl); //FMC_A10
     // pg.pg1.into_af12(&mut pg.moder, &mut pg.afrl); //FMC_A11
@@ -213,18 +238,28 @@ gpiof.afrh.modify(|_, w| {  w.afrh15().af12()});
 
     gpiog.moder.modify(|_, w| {w.moder0().alternate()});
     gpiog.afrl.modify(|_, w| {  w.afrl0().af12()});
+    gpiog.ospeedr.modify(|_, w| w.ospeedr0().very_high_speed());
+
     
     gpiog.moder.modify(|_, w| {w.moder1().alternate()});
     gpiog.afrl.modify(|_, w| {  w.afrl1().af12()});
+    gpiog.ospeedr.modify(|_, w| w.ospeedr1().very_high_speed());
+
     
     gpiog.moder.modify(|_, w| {w.moder2().alternate()});
     gpiog.afrl.modify(|_, w| {  w.afrl2().af12()});
+    gpiog.ospeedr.modify(|_, w| w.ospeedr2().very_high_speed());
+
     
     gpiog.moder.modify(|_, w| {w.moder3().alternate()});
     gpiog.afrl.modify(|_, w| {  w.afrl3().af12()});
+    gpiog.ospeedr.modify(|_, w| w.ospeedr3().very_high_speed());
+
     
     gpiog.moder.modify(|_, w| {w.moder4().alternate()});
     gpiog.afrl.modify(|_, w| {  w.afrl4().af12()});
+    gpiog.ospeedr.modify(|_, w| w.ospeedr4().very_high_speed());
+
 
 
     // pd.pd14.into_af12(&mut pd.moder, &mut pd.afrh); // FMC_DQ0
@@ -238,28 +273,37 @@ gpiof.afrh.modify(|_, w| {  w.afrh15().af12()});
 
 gpiod.moder.modify(|_, w| {w.moder14().alternate()});
 gpiod.afrh.modify(|_, w| {  w.afrh14().af12()});
+gpiod.ospeedr.modify(|_, w| w.ospeedr14().very_high_speed());
 
 gpiod.moder.modify(|_, w| {w.moder15().alternate()});
 gpiod.afrh.modify(|_, w| {  w.afrh15().af12()});
-
+gpiod.ospeedr.modify(|_, w| w.ospeedr15().very_high_speed());
 
 gpiod.moder.modify(|_, w| {w.moder0().alternate()});
 gpiod.afrl.modify(|_, w| {  w.afrl0().af12()});
+gpiod.ospeedr.modify(|_, w| w.ospeedr0().very_high_speed());
+
 
 gpiod.moder.modify(|_, w| {w.moder1().alternate()});
 gpiod.afrl.modify(|_, w| {  w.afrl1().af12()});
+gpiod.ospeedr.modify(|_, w| w.ospeedr1().very_high_speed());
 
 gpioe.moder.modify(|_, w| {w.moder7().alternate()});
 gpioe.afrl.modify(|_, w| {  w.afrl7().af12()});
+gpioe.ospeedr.modify(|_, w| w.ospeedr7().very_high_speed());
 
 gpioe.moder.modify(|_, w| {w.moder8().alternate()});
 gpioe.afrh.modify(|_, w| {  w.afrh8().af12()});
+gpioe.ospeedr.modify(|_, w| w.ospeedr8().very_high_speed());
 
 gpioe.moder.modify(|_, w| {w.moder9().alternate()});
 gpioe.afrh.modify(|_, w| {  w.afrh9().af12()});
+gpioe.ospeedr.modify(|_, w| w.ospeedr9().very_high_speed());
+
 
 gpioe.moder.modify(|_, w| {w.moder10().alternate()});
 gpioe.afrh.modify(|_, w| {  w.afrh10().af12()});
+gpioe.ospeedr.modify(|_, w| w.ospeedr10().very_high_speed());
 
 
 // pd.pd7.into_af12(&mut pd.moder, &mut pd.afrl);// FMC_NE3 -> CS
@@ -268,12 +312,18 @@ gpioe.afrh.modify(|_, w| {  w.afrh10().af12()});
 
 gpiod.moder.modify(|_, w| {w.moder7().alternate()});
 gpiod.afrl.modify(|_, w| {  w.afrl7().af12()});
+gpiod.ospeedr.modify(|_, w| w.ospeedr7().very_high_speed());
+
 
 gpiod.moder.modify(|_, w| {w.moder4().alternate()});
 gpiod.afrl.modify(|_, w| {  w.afrl4().af12()});
+gpiod.ospeedr.modify(|_, w| w.ospeedr4().very_high_speed());
+
 
 gpiod.moder.modify(|_, w| {w.moder5().alternate()});
 gpiod.afrl.modify(|_, w| {  w.afrl5().af12()});
+gpiod.ospeedr.modify(|_, w| w.ospeedr5().very_high_speed());
+
 
     // ph.ph0.into_af12(&mut ph.moder, &mut ph.afrl); //FMC_A0
     // ph.ph1.into_af12(&mut ph.moder, &mut ph.afrl); //FMC_A1
@@ -357,6 +407,10 @@ gpiod.afrl.modify(|_, w| {  w.afrl5().af12()});
 
         let mut data = ptr::read_volatile(address as *mut u8);
         hprintln!("Read data is {}", data).unwrap();
+    }
+    unsafe{
+        let  ans = test + abc;
+        hprintln!("{}", ans).unwrap();
     }
     loop {
         // your code goes here
