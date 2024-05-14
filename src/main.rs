@@ -80,8 +80,9 @@ use stm32f3xx_hal_v2::{self as hal,
                         pac::Peripherals,
                         pac::FLASH};
 #[link_section = ".fram_section"]
-static mut test: u8 = 34;
-static mut abc: u8 = 87;
+static mut test: u16 = 34;
+#[link_section = ".fram_section"]
+static mut abc: u16 = 189;
 
 #[entry]
 fn main() -> ! {
@@ -409,7 +410,8 @@ gpiod.ospeedr.modify(|_, w| w.ospeedr5().very_high_speed());
         hprintln!("Read data is {}", data).unwrap();
     }
     unsafe{
-        let  ans = test + abc;
+        #[link_section = ".fram_section"]
+        let ans: u16 = test + abc;
         hprintln!("{}", ans).unwrap();
     }
     loop {

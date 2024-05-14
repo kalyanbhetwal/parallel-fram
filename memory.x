@@ -6,7 +6,7 @@ MEMORY
   /* These values correspond to the LM3S6965, one of the few devices QEMU can emulate */
   FLASH : ORIGIN = 0x08000000, LENGTH = 256K
   RAM : ORIGIN = 0x20000000, LENGTH = 40K
-  FRAM (xrw) : ORIGIN = 0x60000000, LENGTH = 32K
+  FRAM : ORIGIN = 0x60000000, LENGTH = 32K
 }
 
 /* This is where the call stack will be allocated. */
