@@ -79,10 +79,32 @@ use stm32f3xx_hal_v2::{self as hal,
                         flash::ACR, 
                         pac::Peripherals,
                         pac::FLASH};
+
 #[link_section = ".fram_section"]
-static mut test: u16 = 34;
-#[link_section = ".fram_section"]
-static mut abc: u16 = 189;
+static DATA_ARRAY: [u8; 5] = [0x12, 0x34, 0xAB, 0xCD, 0xEF];
+
+unsafe fn write_16bit(ptr: *mut u16, value: u16) {
+    // Split the 16-bit value into two 8-bit values
+    let low_byte = (value & 0xFF) as u8;
+    let high_byte = (value >> 8) as u8;
+
+    // Write the high byte next
+    ptr::write_volatile((ptr as *mut u8).add(2), high_byte);
+    // Write the low byte first
+    ptr::write_volatile(ptr as *mut u8, low_byte);
+
+}
+
+unsafe fn read_16bit(ptr: *const u16) -> u16 {
+    // Read the low byte first
+    let low_byte = ptr::read_volatile(ptr as *const u8);
+
+    // Read the high byte next
+    let high_byte = ptr::read_volatile((ptr as *const u8).offset(2));
+
+    // Combine the two bytes into a 16-bit value
+    ((high_byte as u16) << 8) | (low_byte as u16)
+}
 
 #[entry]
 fn main() -> ! {
@@ -366,6 +388,8 @@ gpiod.ospeedr.modify(|_, w| w.ospeedr5().very_high_speed());
         w.mbken().set_bit(); // Enable FRAM bank 1
         w.mtyp().bits(0b00); // FRAM memory type
         w.mwid().bits(0b00); // 8-bit width
+        w.bursten().clear_bit(); //disable brust access mode
+        w.wren().clear_bit(); // wrap disable
         w.muxen().clear_bit(); // Non-multiplexed
         w.extmod().clear_bit(); // extended mode
         w.asyncwait().clear_bit(); //disable async wait
@@ -384,7 +408,7 @@ gpiod.ospeedr.modify(|_, w| w.ospeedr5().very_high_speed());
      dp.FMC.btr1.modify(|_,w|  {
        // Set address setup time to 1 cycle
         w.addset().bits(0x1);
-        // Set data setup time to 1 cycle
+        // Set data setup time to 5 cycle
         w.datast().bits(0x5);
         // address hold time
         w.addhld().bits(0x1);
@@ -400,19 +424,17 @@ gpiod.ospeedr.modify(|_, w| w.ospeedr5().very_high_speed());
         w
     });
 }
-
-    let address = 0x6000_0008;
+ let mut ans = [0;60];
     unsafe{
-        let data_ptr =  address as *mut u8;
-        ptr::write_volatile(address as *mut u8, 12u8);
+        for i in 0..60{
+            ans[i] = unsafe { ptr::read_volatile((0x6000_0000 +i) as *mut u8) };
+            hprintln!("Value at index {}: {}", i, ans[i]).unwrap();
+        }
+        hprintln!("Value at index {:?}", ans).unwrap();
+    
 
-        let mut data = ptr::read_volatile(address as *mut u8);
-        hprintln!("Read data is {}", data).unwrap();
-    }
-    unsafe{
-        #[link_section = ".fram_section"]
-        let ans: u16 = test + abc;
-        hprintln!("{}", ans).unwrap();
+    let a = read_16bit(0x6000_0000 as *mut u16);
+    hprintln!("{}", a);
     }
     loop {
         // your code goes here
