@@ -3,15 +3,11 @@
 The Address bus pins of FRAM are connected to corresponding pins in stm32f303ze.
 FMC_A0 --> PH0 (this pin is confusing)
 FMC_A1 --> PH1 (this pin is confusing as well)
-
 FMC_A2 --> PF2 (good)
-
 FMC_A3 --> PF3  (good)
-
 FMC_A4 --> PF4 (good)
 FMC_A5 --> PF5  (good)
 FMC_A6 --> PF12 (good)
-
 FMC_A7 --> PF13 (good)
 
 FMC_A8 --> PF14 (good)
@@ -43,6 +39,48 @@ OE --> PD4
 WE --> PD5
 */
 
+
+  /* FMC GPIO Configuration
+  PH0   ------> FMC_A0
+  PH1   ------> FMC_A1
+  PF2   ------> FMC_A2
+  PF3   ------> FMC_A3
+  PF4   ------> FMC_A4
+  PF5   ------> FMC_A5
+  PF12   ------> FMC_A6
+  PF13   ------> FMC_A7
+  PF14   ------> FMC_A8
+  PF15   ------> FMC_A9
+  PG0   ------> FMC_A10
+  PG1   ------> FMC_A11
+
+  PE7   ------> FMC_D4
+  PE8   ------> FMC_D5
+  PE9   ------> FMC_D6
+  PE10   ------> FMC_D7
+  PE11   ------> FMC_D8
+  PE12   ------> FMC_D9
+  PE13   ------> FMC_D10
+  PE14   ------> FMC_D11
+  PE15   ------> FMC_D12
+  PD8   ------> FMC_D13
+  PD9   ------> FMC_D14
+  PD10   ------> FMC_D15
+  PD14   ------> FMC_D0
+  PD15   ------> FMC_D1
+
+
+  PG2   ------> FMC_A12
+  PG3   ------> FMC_A13
+  PG4   ------> FMC_A14
+  PG5   ------> FMC_A15
+  PD0   ------> FMC_D2
+  PD1   ------> FMC_D3
+  PD4   ------> FMC_NOE
+  PD5   ------> FMC_NWE
+  PD7   ------> FMC_NE1
+  */
+
 /*
 Typical use of FMC to interface with an SRAM
 In this application note, the IS61WV102416BLL memory is used as the reference.
@@ -55,8 +93,6 @@ FMC is configured as follows:
 • The memory is non-multiplexed: BCR1_MUXEN is reset.
 All remaining parameters must be kept cleared.
 */
-
-
 
 #![allow(unsafe_code, unused, non_upper_case_globals)]
 #![no_main]
@@ -200,30 +236,34 @@ fn main() -> ! {
     // pf.pf4.into_af12(&mut pf.moder, &mut pf.afrl); //FMC_A4
     // pf.pf5.into_af12(&mut pf.moder, &mut pf.afrl); //FMC_A5
 
+
+//    PH0   ------> FMC_A0
 gpioh.moder.modify(|_, w| {w.moder0().alternate()});
 gpioh.afrl.modify(|_, w| {  w.afrl0().af12()});
 gpioh.ospeedr.modify(|_, w| w.ospeedr0().very_high_speed());
 
-
+// PH1   ------> FMC_A1
 gpioh.moder.modify(|_, w| {w.moder1().alternate()});
 gpioh.afrl.modify(|_, w| {  w.afrl1().af12()});
 gpioh.ospeedr.modify(|_, w| w.ospeedr1().very_high_speed());
 
-
+//  PF2   ------> FMC_A2
 gpiof.moder.modify(|_, w| {w.moder2().alternate()});
 gpiof.afrl.modify(|_, w| {  w.afrl2().af12()});
 gpiof.ospeedr.modify(|_, w| w.ospeedr2().very_high_speed());
 
-
+//   PF3   ------> FMC_A3
 gpiof.moder.modify(|_, w| {w.moder3().alternate()});
 gpiof.afrl.modify(|_, w| {  w.afrl3().af12()});
 gpiof.ospeedr.modify(|_, w| w.ospeedr3().very_high_speed());
 
+//   PF4   ------> FMC_A4
 gpiof.moder.modify(|_, w| {w.moder4().alternate()});
 gpiof.afrl.modify(|_, w| {  w.afrl4().af12()});
 gpiof.ospeedr.modify(|_, w| w.ospeedr4().very_high_speed());
 
 
+// PF5   ------> FMC_A5
 gpiof.moder.modify(|_, w| {w.moder5().alternate()});
 gpiof.afrl.modify(|_, w| {  w.afrl5().af12()});
 gpiof.ospeedr.modify(|_, w| w.ospeedr5().very_high_speed());
@@ -234,21 +274,23 @@ gpiof.ospeedr.modify(|_, w| w.ospeedr5().very_high_speed());
     // pf.pf14.into_af12(&mut pf.moder, &mut pf.afrh); //FMC_A8
     // pf.pf15.into_af12(&mut pf.moder, &mut pf.afrh); //FMC_A9
 
+
+//    PF12   ------> FMC_A6
 gpiof.moder.modify(|_, w| {w.moder12().alternate()});
 gpiof.afrh.modify(|_, w| {  w.afrh12().af12()});
 gpiof.ospeedr.modify(|_, w| w.ospeedr12().very_high_speed());
 
-
+//   PF13   ------> FMC_A7
 gpiof.moder.modify(|_, w| {w.moder13().alternate()});
 gpiof.afrh.modify(|_, w| {  w.afrh13().af12()});
 gpiof.ospeedr.modify(|_, w| w.ospeedr13().very_high_speed());
 
-
+//   PF14   ------> FMC_A8
 gpiof.moder.modify(|_, w| {w.moder14().alternate()});
 gpiof.afrh.modify(|_, w| {  w.afrh14().af12()});
 gpiof.ospeedr.modify(|_, w| w.ospeedr14().very_high_speed());
 
-
+//  PF15   ------> FMC_A9
 gpiof.moder.modify(|_, w| {w.moder15().alternate()});
 gpiof.afrh.modify(|_, w| {  w.afrh15().af12()});
 gpiof.ospeedr.modify(|_, w| w.ospeedr15().very_high_speed());
@@ -259,29 +301,35 @@ gpiof.ospeedr.modify(|_, w| w.ospeedr15().very_high_speed());
     // pg.pg3.into_af12(&mut pg.moder, &mut pg.afrl); //FMC_A13
     // pg.pg4.into_af12(&mut pg.moder, &mut pg.afrl); //FMC_A14
 
+    // PG0   ------> FMC_A10
     gpiog.moder.modify(|_, w| {w.moder0().alternate()});
     gpiog.afrl.modify(|_, w| {  w.afrl0().af12()});
     gpiog.ospeedr.modify(|_, w| w.ospeedr0().very_high_speed());
 
-    
+    //  PG1   ------> FMC_A11
     gpiog.moder.modify(|_, w| {w.moder1().alternate()});
     gpiog.afrl.modify(|_, w| {  w.afrl1().af12()});
     gpiog.ospeedr.modify(|_, w| w.ospeedr1().very_high_speed());
 
-    
+    //  PG2   ------> FMC_A12
     gpiog.moder.modify(|_, w| {w.moder2().alternate()});
     gpiog.afrl.modify(|_, w| {  w.afrl2().af12()});
     gpiog.ospeedr.modify(|_, w| w.ospeedr2().very_high_speed());
 
-    
+    //    PG3   ------> FMC_A13
     gpiog.moder.modify(|_, w| {w.moder3().alternate()});
     gpiog.afrl.modify(|_, w| {  w.afrl3().af12()});
     gpiog.ospeedr.modify(|_, w| w.ospeedr3().very_high_speed());
 
-    
+    //   PG4   ------> FMC_A14
     gpiog.moder.modify(|_, w| {w.moder4().alternate()});
     gpiog.afrl.modify(|_, w| {  w.afrl4().af12()});
     gpiog.ospeedr.modify(|_, w| w.ospeedr4().very_high_speed());
+
+    //PG5   ------> FMC_A15
+    gpiog.moder.modify(|_, w| {w.moder5().alternate()});
+    gpiog.afrl.modify(|_, w| {  w.afrl5().af12()});
+    gpiog.ospeedr.modify(|_, w| w.ospeedr5().very_high_speed());
 
 
 
@@ -294,44 +342,98 @@ gpiof.ospeedr.modify(|_, w| w.ospeedr15().very_high_speed());
     // pe.pe9.into_af12(&mut pe.moder, &mut pe.afrh);  // FMC_DQ6
     // pe.pe10.into_af12(&mut pe.moder, &mut pe.afrh); // FMC_DQ7
 
+//  PD14   ------> FMC_D0
 gpiod.moder.modify(|_, w| {w.moder14().alternate()});
 gpiod.afrh.modify(|_, w| {  w.afrh14().af12()});
 gpiod.ospeedr.modify(|_, w| w.ospeedr14().very_high_speed());
 
+//  PD15   ------> FMC_D1
 gpiod.moder.modify(|_, w| {w.moder15().alternate()});
 gpiod.afrh.modify(|_, w| {  w.afrh15().af12()});
 gpiod.ospeedr.modify(|_, w| w.ospeedr15().very_high_speed());
 
+// PD0   ------> FMC_D2
 gpiod.moder.modify(|_, w| {w.moder0().alternate()});
 gpiod.afrl.modify(|_, w| {  w.afrl0().af12()});
 gpiod.ospeedr.modify(|_, w| w.ospeedr0().very_high_speed());
 
 
+// PD1   ------> FMC_D3
 gpiod.moder.modify(|_, w| {w.moder1().alternate()});
 gpiod.afrl.modify(|_, w| {  w.afrl1().af12()});
 gpiod.ospeedr.modify(|_, w| w.ospeedr1().very_high_speed());
+
+
+//PE7   ------> FMC_D4
 
 gpioe.moder.modify(|_, w| {w.moder7().alternate()});
 gpioe.afrl.modify(|_, w| {  w.afrl7().af12()});
 gpioe.ospeedr.modify(|_, w| w.ospeedr7().very_high_speed());
 
+
+//PE8   ------> FMC_D5
 gpioe.moder.modify(|_, w| {w.moder8().alternate()});
 gpioe.afrh.modify(|_, w| {  w.afrh8().af12()});
 gpioe.ospeedr.modify(|_, w| w.ospeedr8().very_high_speed());
 
+// PE9   ------> FMC_D6
 gpioe.moder.modify(|_, w| {w.moder9().alternate()});
 gpioe.afrh.modify(|_, w| {  w.afrh9().af12()});
 gpioe.ospeedr.modify(|_, w| w.ospeedr9().very_high_speed());
 
-
+//PE10   ------> FMC_D7
 gpioe.moder.modify(|_, w| {w.moder10().alternate()});
 gpioe.afrh.modify(|_, w| {  w.afrh10().af12()});
 gpioe.ospeedr.modify(|_, w| w.ospeedr10().very_high_speed());
+
+//PE11   ------> FMC_D8
+gpioe.moder.modify(|_, w| {w.moder11().alternate()});
+gpioe.afrh.modify(|_, w| {  w.afrh11().af12()});
+gpioe.ospeedr.modify(|_, w| w.ospeedr11().very_high_speed());
+
+//PE12   ------> FMC_D9
+gpioe.moder.modify(|_, w| {w.moder12().alternate()});
+gpioe.afrh.modify(|_, w| {  w.afrh12().af12()});
+gpioe.ospeedr.modify(|_, w| w.ospeedr12().very_high_speed());
+
+//PE13   ------> FMC_D10
+gpioe.moder.modify(|_, w| {w.moder13().alternate()});
+gpioe.afrh.modify(|_, w| {  w.afrh13().af12()});
+gpioe.ospeedr.modify(|_, w| w.ospeedr12().very_high_speed());
+
+//PE14   ------> FMC_D11
+gpioe.moder.modify(|_, w| {w.moder14().alternate()});
+gpioe.afrh.modify(|_, w| {  w.afrh14().af12()});
+gpioe.ospeedr.modify(|_, w| w.ospeedr14().very_high_speed());
+
+//PE15   ------> FMC_D12
+gpioe.moder.modify(|_, w| {w.moder15().alternate()});
+gpioe.afrh.modify(|_, w| {  w.afrh15().af12()});
+gpioe.ospeedr.modify(|_, w| w.ospeedr15().very_high_speed());
+
+//PD8   ------> FMC_D13
+gpioe.moder.modify(|_, w| {w.moder13().alternate()});
+gpioe.afrh.modify(|_, w| {  w.afrh13().af12()});
+gpioe.ospeedr.modify(|_, w| w.ospeedr12().very_high_speed());
+
+//PD9   ------> FMC_D14
+gpiod.moder.modify(|_, w| {w.moder9().alternate()});
+gpiod.afrh.modify(|_, w| {  w.afrh9().af12()});
+gpiod.ospeedr.modify(|_, w| w.ospeedr12().very_high_speed());
+
+//PD10   ------> FMC_D15
+gpiod.moder.modify(|_, w| {w.moder13().alternate()});
+gpiod.afrh.modify(|_, w| {  w.afrh13().af12()});
+gpiod.ospeedr.modify(|_, w| w.ospeedr12().very_high_speed());
 
 
 // pd.pd7.into_af12(&mut pd.moder, &mut pd.afrl);// FMC_NE3 -> CS
 // pd.pd4.into_af12(&mut pd.moder, &mut pd.afrl); // FMC_NOE -> OE
 // pd.pd5.into_af12(&mut pd.moder, &mut pd.afrl); // FMC_NWE -> WE
+
+// PD4   ------> FMC_NOE
+// PD5   ------> FMC_NWE
+// PD7   ------> FMC_NE1
 
 gpiod.moder.modify(|_, w| {w.moder7().alternate()});
 gpiod.afrl.modify(|_, w| {  w.afrl7().af12()});
@@ -346,6 +448,8 @@ gpiod.ospeedr.modify(|_, w| w.ospeedr4().very_high_speed());
 gpiod.moder.modify(|_, w| {w.moder5().alternate()});
 gpiod.afrl.modify(|_, w| {  w.afrl5().af12()});
 gpiod.ospeedr.modify(|_, w| w.ospeedr5().very_high_speed());
+
+
 
 
     // ph.ph0.into_af12(&mut ph.moder, &mut ph.afrl); //FMC_A0
@@ -387,7 +491,7 @@ gpiod.ospeedr.modify(|_, w| w.ospeedr5().very_high_speed());
         dp.FMC.bcr1.modify(|_, w| {
         w.mbken().set_bit(); // Enable FRAM bank 1
         w.mtyp().bits(0b00); // FRAM memory type
-        w.mwid().bits(0b00); // 8-bit width
+        w.mwid().bits(0b01); // 8-bit width
         w.bursten().clear_bit(); //disable brust access mode
         w.wren().clear_bit(); // wrap disable
         w.muxen().clear_bit(); // Non-multiplexed
@@ -407,17 +511,17 @@ gpiod.ospeedr.modify(|_, w| w.ospeedr5().very_high_speed());
    */
      dp.FMC.btr1.modify(|_,w|  {
        // Set address setup time to 1 cycle
-        w.addset().bits(0x1);
+        w.addset().bits(0x0F);
         // Set data setup time to 5 cycle
-        w.datast().bits(0x5);
+        w.datast().bits(0xFF);
         // address hold time
-        w.addhld().bits(0x1);
+        w.addhld().bits(0x0F);
         // bus turn around
         w.busturn().bits(0x0);
         // clock division
-        w.clkdiv().bits(0x0);
+        w.clkdiv().bits(0x10);
         //data latency
-        w.datlat().bits(0x0);
+        w.datlat().bits(0x11);
         //access mode
         w.accmod().bits(0x0);
 
@@ -426,15 +530,21 @@ gpiod.ospeedr.modify(|_, w| w.ospeedr5().very_high_speed());
 }
  let mut ans = [0;60];
     unsafe{
-        for i in 0..60{
-            ans[i] = unsafe { ptr::read_volatile((0x6000_0000 +i) as *mut u8) };
+        for i in (0..60).step_by(2){
+            unsafe { ptr::write_volatile((0x6000_0000 +i+1) as *mut u8, (i+1) as u8) };
+        }
+
+
+        for i in (0..60).step_by(2){
+            ans[i] = unsafe { ptr::read_volatile((0x6000_0000 +i+1) as *mut u8) };
             hprintln!("Value at index {}: {}", i, ans[i]).unwrap();
         }
         hprintln!("Value at index {:?}", ans).unwrap();
-    
 
-    let a = read_16bit(0x6000_0000 as *mut u16);
-    hprintln!("{}", a);
+
+   // let a =     ptr::write_volatile(0x6000_0009 as *mut u8, 41);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
+    let a =   ptr::read_volatile(0x6000_0008 as *mut u16);//read_16bit(0x6000_0000 as *mut u16);
+    hprintln!("{:0x}", a);
     }
     loop {
         // your code goes here
