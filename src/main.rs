@@ -76,8 +76,8 @@ use stm32f3xx_hal_v2::{self as hal,
                         pac::Peripherals,
                         pac::FLASH};
 
-#[link_section = ".fram_section"]
-static DATA_ARRAY: [u8; 5] = [0x12, 0x34, 0xAB, 0xCD, 0xEF];
+//#[link_section = ".fram_section"]
+//static DATA_ARRAY: [u8; 5] = [0x12, 0x34, 0xAB, 0xCD, 0xEF];
 
 unsafe fn write_16bit(ptr: *mut u16, value: u16) {
     // Split the 16-bit value into two 8-bit values
@@ -308,9 +308,9 @@ fn initialization(){
     gpioe.ospeedr.modify(|_, w| w.ospeedr10().very_high_speed());
 
     //PE11   ------> FMC_D8
-    gpioe.moder.modify(|_, w| {w.moder7().alternate()});
-    gpioe.afrl.modify(|_, w| {  w.afrl7().af12()});
-    gpioe.ospeedr.modify(|_, w| w.ospeedr7().very_high_speed());
+    gpioe.moder.modify(|_, w| {w.moder11().alternate()});
+    gpioe.afrh.modify(|_, w| {  w.afrh11().af12()});
+    gpioe.ospeedr.modify(|_, w| w.ospeedr11().very_high_speed());
 
 
     //PE12   ------> FMC_D9
@@ -438,13 +438,18 @@ fn main() -> ! {
         //hprintln!("Value at index {:?}", ans).unwrap();
 
 
-   let a =     ptr::write_volatile(0x6000_0000 as *mut u8, 0xFF);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
-    let a =   ptr::read_volatile(0x6000_0000 as *mut u8);//read_16bit(0x6000_0000 as *mut u16);
+//    let a: u16;
+//     ptr::write_volatile(0x6000_0000 as *mut u16, 0xBBBB);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
+//     let a =   ptr::read_volatile(0x6000_0000 as *mut u16);//read_16bit(0x6000_0000 as *mut u16);
 
-    hprintln!("{:0x}", a);
+//     hprintln!("{:0x}", a);
 
-    let a =     ptr::write_volatile(0x6000_0003 as *mut u8, 0xFF);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
-    let a =   ptr::read_volatile(0x6000_0003 as *mut u8);//read_16bit(0x6000_0000 as *mut u16);
+//     ptr::write_volatile(0x6000_0004 as *mut u16, 0xA000);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
+//     let a =   ptr::read_volatile(0x6000_0004 as *mut u16);//read_16bit(0x6000_0000 as *mut u16);
+//     hprintln!("{:0x}", a);
+
+    ptr::write_volatile(0x6000_0006 as *mut u16, 0xFF_FF);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
+    let a =   ptr::read_volatile(0x6000_0006 as *mut u16);
 
     hprintln!("{:0x}", a);
     }
