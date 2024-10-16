@@ -425,14 +425,14 @@ fn main() -> ! {
     //let mut ans;// = [0;60];
     unsafe{
         // for i in (0..200).step_by(2){
-        //     unsafe { ptr::write_volatile((0x6000_0001+i) as *mut u8, 0xFF as u8) };
+        //     unsafe { ptr::write_volatile((0x6000_0000+i) as *mut u16, 0xFF_FF) };
         //     delay(1000000);
         // }
 
 
         // for i in (0..200).step_by(2){
-        //     ans = unsafe { ptr::read_volatile((0x6000_0001 +i) as *mut u8) };
-        //     hprintln!("Value at index {}: {}", i, ans).unwrap();
+        //     ans = unsafe { ptr::read_volatile((0x6000_0000 +i) as *mut u16) };
+        //     //hprintln!("Value at index {}: {}, {:#08x} ", i, ans,0x6000_0000 +i ).unwrap();
         //     delay(1000000);
         // }
         //hprintln!("Value at index {:?}", ans).unwrap();
@@ -448,10 +448,52 @@ fn main() -> ! {
 //     let a =   ptr::read_volatile(0x6000_0004 as *mut u16);//read_16bit(0x6000_0000 as *mut u16);
 //     hprintln!("{:0x}", a);
 
-    ptr::write_volatile(0x6000_0006 as *mut u16, 0xFF_FF);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
-    let a =   ptr::read_volatile(0x6000_0006 as *mut u16);
-
+    ptr::write_volatile(0x6000_0000 as *mut u16, 0xFF_F1);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
+    let a =   ptr::read_volatile(0x6000_0000 as *mut u16);
     hprintln!("{:0x}", a);
+
+    ptr::write_volatile(0x6000_0002 as *mut u16, 0xFF_F2);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
+    let a =   ptr::read_volatile(0x6000_0002 as *mut u16);
+    hprintln!("{:0x}", a);
+    
+    ptr::write_volatile(0x6000_0004 as *mut u16, 0xFF_F3);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
+    let a =   ptr::read_volatile(0x6000_0004 as *mut u16);
+    hprintln!("{:0x}", a);
+    
+
+    ptr::write_volatile(0x6000_0008 as *mut u16, 0xFF_F4);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
+    let a =   ptr::read_volatile(0x6000_0008 as *mut u16);
+    hprintln!("{:0x}", a);
+    
+    ptr::write_volatile(0x6000_000A as *mut u16, 0xFF_F5);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
+    let a =   ptr::read_volatile(0x6000_000A as *mut u16);
+    hprintln!("{:0x}", a);
+    
+    ptr::write_volatile(0x6000_000C as *mut u16, 0xFF_F6);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
+    let a =   ptr::read_volatile(0x6000_000C as *mut u16);
+    hprintln!("{:0x}", a);
+    
+    ptr::write_volatile(0x6000_000E as *mut u16, 0xFF_F7);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
+    let a =   ptr::read_volatile(0x6000_000E as *mut u16);
+    hprintln!("{:0x}", a);
+    
+    ptr::write_volatile(0x6000_0010 as *mut u16, 0xFF_F8);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
+    let a =   ptr::read_volatile(0x6000_0010 as *mut u16);
+    hprintln!("{:0x}", a);
+    
+    ptr::write_volatile(0x6000_0012 as *mut u16, 0xFF_F9);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
+    let a =   ptr::read_volatile(0x6000_0012 as *mut u16);
+    hprintln!("{:0x}", a);
+    
+    ptr::write_volatile(0x6000_0014 as *mut u16, 0xFF_FA);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
+    let a =   ptr::read_volatile(0x6000_0014 as *mut u16);
+    hprintln!("{:0x}", a);
+    
+    ptr::write_volatile(0x6000_0016 as *mut u16, 0xFF_FB);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
+    let a =   ptr::read_volatile(0x6000_0016 as *mut u16);
+    hprintln!("{:0x}", a);
+    
+
     }
     loop {
         // your code goes here
