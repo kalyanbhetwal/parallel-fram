@@ -158,7 +158,7 @@ static mut PARAM_1: Tensor2D<10, 50> = Tensor2D::new([
 
 #[link_section=".fram_section"]
 static PARAM_2: Tensor2D<2, 10> = Tensor2D::new([
-    [ 0xFFFFFFFu32 as i32, 0xFFFDFFF, 0xABCD, 0x4567, 9, 4, 9, 0, 1, 4],
+    [ 0xDDDDDu32 as i32, 0xFFDCFF, 0xCBCD, 0x4567, 0xAADDDDD, 4, 9, 0, 1, 4],
     [2, 9, 2, 3, 2, 2, 8, 0, 8, 4],
 ]);
 
@@ -185,7 +185,7 @@ fn initialization(){
      dp.RCC.cfgr2.modify(|_, w| w.prediv().div1());
  
      // Set PLL MUL to x9
-     dp.RCC.cfgr.modify(|_, w| w.pllmul().mul9());
+     dp.RCC.cfgr.modify(|_, w| w.pllmul().mul2());  //changed from x9 to x2
  
      // Step 4: Enable the PLL again by setting PLLON to 1
     // dp.RCC.cr.modify(|_r, w| w.pllon().set_bit());
@@ -461,7 +461,7 @@ fn initialization(){
            // bus turn around
            w.busturn().bits(0x0);
            // clock division
-           w.clkdiv().bits(0x0);
+           w.clkdiv().bits(0x4);
            //data latency
            w.datlat().bits(0x0);
            //access mode
