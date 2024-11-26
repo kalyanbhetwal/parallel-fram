@@ -76,32 +76,91 @@ use stm32f3xx_hal_v2::{self as hal,
                         pac::Peripherals,
                         pac::FLASH};
 
-//#[link_section = ".fram_section"]
-//static DATA_ARRAY: [u8; 5] = [0x12, 0x34, 0xAB, 0xCD, 0xEF];
+// #[link_section = ".fram_section"]
+// static mut DATA_ARRAY: [u32; 5] = [0x341234, 0x3FF4, 0xCDAB, 0x12CD, 0x45EF];
 
-unsafe fn write_16bit(ptr: *mut u16, value: u16) {
-    // Split the 16-bit value into two 8-bit values
-    let low_byte = (value & 0xFF) as u8;
-    let high_byte = (value >> 8) as u8;
 
-    // Write the high byte next
-    ptr::write_volatile((ptr as *mut u8).add(2), high_byte);
-    // Write the low byte first
-    ptr::write_volatile(ptr as *mut u8, low_byte);
+#[cfg(target_arch = "arm")]
+type Numeric = i32;
+#[cfg(not(target_arch = "arm"))]
+type Numeric = i16;
 
+#[derive(Debug)]
+pub struct Tensor2D<const H: usize, const W: usize> {
+    tensor: [[Numeric; W]; H],
 }
 
-unsafe fn read_16bit(ptr: *const u16) -> u16 {
-    // Read the low byte first
-    let low_byte = ptr::read_volatile(ptr as *const u8);
+impl<const H: usize, const W: usize> Tensor2D<H, W> {
+    pub const fn new(tensor: [[Numeric; W]; H]) -> Self {
+        Self { tensor }
+    }
 
-    // Read the high byte next
-    let high_byte = ptr::read_volatile((ptr as *const u8).offset(2));
+    #[inline(always)]
+    pub fn at(&self, rol: usize, col: usize) -> &Numeric {
+        hprintln!("{:p}", &self.tensor[rol][col]);
+        &self.tensor[rol][col]
+    }
 
-    // Combine the two bytes into a 16-bit value
-    ((high_byte as u16) << 8) | (low_byte as u16)
+    #[inline(always)]
+    pub fn mut_at(&mut self, rol: usize, col: usize) -> &mut Numeric {
+        hprintln!("{:p}", &self.tensor[rol][col]);
+        &mut self.tensor[rol][col]
+    }
 }
 
+pub struct Tensor1D<const W: usize> {
+    tensor: [Numeric; W],
+}
+
+#[link_section=".fram_section"]
+static mut PARAM_1: Tensor2D<10, 50> = Tensor2D::new([
+    [
+        7, 0, 2, 5, 4, 4, 5, 7, 9, 2, 9, 4, 9, 3, 0, 8, 4, 0, 2, 9, 3, 8, 1, 6, 6, 6, 5, 3, 3, 2,
+        4, 0, 6, 9, 3, 7, 6, 3, 4, 9, 2, 5, 0, 5, 7, 3, 5, 8, 7, 5,
+    ],
+    [
+        8, 0, 6, 0, 3, 6, 0, 6, 0, 0, 6, 3, 3, 0, 0, 0, 5, 4, 5, 9, 8, 4, 5, 8, 8, 5, 5, 9, 1, 7,
+        0, 3, 8, 8, 5, 9, 5, 5, 2, 4, 2, 7, 1, 7, 2, 5, 0, 7, 6, 8,
+    ],
+    [
+        2, 0, 6, 9, 4, 9, 8, 7, 0, 6, 4, 8, 1, 5, 5, 3, 6, 8, 4, 8, 8, 4, 7, 8, 4, 2, 4, 8, 0, 7,
+        0, 7, 5, 3, 9, 7, 1, 6, 2, 1, 5, 8, 5, 9, 1, 8, 7, 5, 8, 9,
+    ],
+    [
+        9, 1, 9, 7, 4, 1, 8, 3, 2, 5, 3, 9, 2, 8, 3, 1, 8, 8, 1, 4, 1, 3, 2, 4, 0, 5, 9, 5, 3, 9,
+        2, 9, 1, 9, 5, 0, 2, 7, 0, 7, 3, 9, 1, 4, 6, 0, 2, 4, 6, 7,
+    ],
+    [
+        4, 9, 0, 4, 7, 8, 3, 4, 4, 2, 2, 0, 5, 7, 0, 2, 7, 2, 3, 5, 0, 3, 2, 0, 3, 0, 4, 8, 1, 9,
+        8, 2, 4, 5, 3, 1, 8, 0, 7, 1, 8, 1, 9, 1, 6, 8, 9, 3, 8, 5,
+    ],
+    [
+        4, 4, 0, 3, 5, 7, 1, 9, 2, 2, 6, 6, 5, 0, 6, 5, 0, 3, 0, 9, 2, 6, 0, 0, 6, 6, 2, 5, 4, 8,
+        7, 9, 4, 5, 6, 4, 8, 9, 3, 6, 3, 4, 3, 4, 4, 4, 6, 8, 6, 1,
+    ],
+    [
+        5, 7, 8, 4, 6, 2, 0, 7, 9, 1, 3, 6, 0, 6, 8, 3, 4, 8, 9, 1, 9, 0, 3, 4, 6, 6, 7, 4, 5, 1,
+        6, 0, 9, 9, 8, 6, 5, 5, 4, 8, 6, 4, 5, 9, 6, 7, 9, 8, 7, 8,
+    ],
+    [
+        5, 0, 8, 2, 6, 3, 0, 1, 9, 9, 4, 9, 6, 0, 6, 6, 5, 8, 3, 4, 5, 5, 7, 9, 0, 8, 2, 8, 9, 4,
+        0, 1, 7, 6, 7, 8, 8, 7, 7, 9, 1, 4, 9, 7, 2, 9, 0, 7, 8, 7,
+    ],
+    [
+        3, 0, 0, 1, 0, 4, 7, 2, 9, 5, 6, 8, 6, 4, 3, 6, 2, 1, 5, 4, 5, 1, 4, 8, 6, 3, 5, 8, 0, 8,
+        0, 3, 0, 1, 9, 0, 9, 8, 0, 9, 0, 5, 2, 8, 1, 6, 1, 9, 5, 9,
+    ],
+    [
+        3, 7, 8, 5, 9, 8, 7, 4, 6, 9, 9, 1, 4, 1, 6, 2, 3, 4, 8, 9, 8, 0, 5, 6, 5, 3, 8, 2, 1, 4,
+        3, 1, 6, 9, 5, 9, 1, 1, 9, 3, 0, 9, 6, 3, 3, 0, 8, 5, 6, 6,
+    ],
+]);
+
+#[link_section=".fram_section"]
+static PARAM_2: Tensor2D<2, 10> = Tensor2D::new([
+    [ 0xFFFFFFFu32 as i32, 0xFFFDFFF, 0xABCD, 0x4567, 9, 4, 9, 0, 1, 4],
+    [2, 9, 2, 3, 2, 2, 8, 0, 8, 4],
+]);
 
 fn initialization(){
     let dp  = Peripherals::take().unwrap();
@@ -418,83 +477,26 @@ fn main() -> ! {
 
     initialization();
 
-  // dp.RCC.ahbenr.modify(|_,w| w.fmcen().set_bit());
+    // Use the `at` method to access the last element (9th row, 49th column)
+    // let last_element = PARAM_1.at(9, 49);
 
-  // Configure FMC for SRAM memory(in our case F-RAM)
+    // // Get the raw pointer to the last element
+    // let ptr: *const Numeric = last_element;
 
-    //let mut ans;// = [0;60];
-    unsafe{
-        // for i in (0..200).step_by(2){
-        //     unsafe { ptr::write_volatile((0x6000_0000+i) as *mut u16, 0xFF_FF) };
-        //     delay(1000000);
-        // }
+    // // Print the address of the last element
+    // hprintln!("The address of the last element is: {:p}", ptr);
 
 
-        // for i in (0..200).step_by(2){
-        //     ans = unsafe { ptr::read_volatile((0x6000_0000 +i) as *mut u16) };
-        //     //hprintln!("Value at index {}: {}, {:#08x} ", i, ans,0x6000_0000 +i ).unwrap();
-        //     delay(1000000);
-        // }
-        //hprintln!("Value at index {:?}", ans).unwrap();
 
+    hprintln!("test test ...").unwrap();
 
-//    let a: u16;
-//     ptr::write_volatile(0x6000_0000 as *mut u16, 0xBBBB);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
-//     let a =   ptr::read_volatile(0x6000_0000 as *mut u16);//read_16bit(0x6000_0000 as *mut u16);
+    //hprintln!("{:p}", &PARAM_1).unwrap();
 
-//     hprintln!("{:0x}", a);
-
-//     ptr::write_volatile(0x6000_0004 as *mut u16, 0xA000);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
-//     let a =   ptr::read_volatile(0x6000_0004 as *mut u16);//read_16bit(0x6000_0000 as *mut u16);
-//     hprintln!("{:0x}", a);
-
-    ptr::write_volatile(0x6000_0000 as *mut u16, 0xFF_F1);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
-    let a =   ptr::read_volatile(0x6000_0000 as *mut u16);
-    hprintln!("{:0x}", a);
-
-    ptr::write_volatile(0x6000_0002 as *mut u16, 0xFF_F2);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
-    let a =   ptr::read_volatile(0x6000_0002 as *mut u16);
-    hprintln!("{:0x}", a);
-    
-    ptr::write_volatile(0x6000_0004 as *mut u16, 0xFF_F3);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
-    let a =   ptr::read_volatile(0x6000_0004 as *mut u16);
-    hprintln!("{:0x}", a);
-    
-
-    ptr::write_volatile(0x6000_0008 as *mut u16, 0xFF_F4);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
-    let a =   ptr::read_volatile(0x6000_0008 as *mut u16);
-    hprintln!("{:0x}", a);
-    
-    ptr::write_volatile(0x6000_000A as *mut u16, 0xFF_F5);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
-    let a =   ptr::read_volatile(0x6000_000A as *mut u16);
-    hprintln!("{:0x}", a);
-    
-    ptr::write_volatile(0x6000_000C as *mut u16, 0xFF_F6);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
-    let a =   ptr::read_volatile(0x6000_000C as *mut u16);
-    hprintln!("{:0x}", a);
-    
-    ptr::write_volatile(0x6000_000E as *mut u16, 0xFF_F7);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
-    let a =   ptr::read_volatile(0x6000_000E as *mut u16);
-    hprintln!("{:0x}", a);
-    
-    ptr::write_volatile(0x6000_0010 as *mut u16, 0xFF_F8);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
-    let a =   ptr::read_volatile(0x6000_0010 as *mut u16);
-    hprintln!("{:0x}", a);
-    
-    ptr::write_volatile(0x6000_0012 as *mut u16, 0xFF_F9);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
-    let a =   ptr::read_volatile(0x6000_0012 as *mut u16);
-    hprintln!("{:0x}", a);
-    
-    ptr::write_volatile(0x6000_0014 as *mut u16, 0xFF_FA);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
-    let a =   ptr::read_volatile(0x6000_0014 as *mut u16);
-    hprintln!("{:0x}", a);
-    
-    ptr::write_volatile(0x6000_0016 as *mut u16, 0xFF_FB);  // write_16bit(0x6000_0000 as *mut u16, 0xBEEF);
-    let a =   ptr::read_volatile(0x6000_0016 as *mut u16);
-    hprintln!("{:0x}", a);
-    
-
+    unsafe {
+        *PARAM_1.mut_at(0, 0) = 32345678 as i32;
+        hprintln!("{:?}", PARAM_2);
     }
+
     loop {
         // your code goes here
     }
